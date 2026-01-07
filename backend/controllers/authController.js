@@ -12,10 +12,9 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
+    await User.create({
       name,
       email,
       password: hashedPassword,
@@ -27,7 +26,7 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-// LOGIN
+// LOGIN (COOKIE BASED)
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -48,8 +47,15 @@ exports.loginUser = async (req, res) => {
       { expiresIn: "1d" }
     );
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false, // production me true
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
     res.json({
-      token,
+      message: "Login successful",
       user: {
         id: user._id,
         name: user.name,
@@ -60,3 +66,10 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// LOGOUT
+exports.logoutUser = async (req, res) => {
+  res.clearCookie("token");
+  res.json({ message: "Logged out successfully" });
+};
+

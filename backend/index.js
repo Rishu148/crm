@@ -23,7 +23,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
-
+const cookieParser = require("cookie-parser");
 
 dotenv.config();
 connectDB();
@@ -34,6 +34,7 @@ app.use(cors());
 app.use(express.json());
 
 
+
 app.get("/check", (req, res) => {
   res.send("API working");
 });
@@ -41,9 +42,19 @@ app.get("/check", (req, res) => {
 app.use("/api/tasks", require("./routes/taskRoutes"));
 
 
+
+app.use(cookieParser());
+
 app.use(cors({
-  origin: "http://localhost:5173"
-}));
+  origin: "http://localhost:5173", // frontend
+  credentials: true,               // IMPORTANT
+})
+);
+
+
+// app.use(cors({
+//   origin: "http://localhost:5173"
+// }));
 
 
 
@@ -58,5 +69,3 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () =>
   console.log(`Server running on port ${PORT}`)
 );
-
-

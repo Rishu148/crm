@@ -9,7 +9,7 @@ import Contacts from "./pages/Contacts";
 import Pipeline from "./pages/pipeline";
 // import Revenue from "./pages/Revenue";
 import Tasks from "./pages/Tasks";
-// import Settings from "./pages/Settings";
+import Settings from "./pages/Settings";
 
 function App() {
   return ( 
@@ -27,7 +27,7 @@ function App() {
         <Route path="/pipeline" element={<Pipeline />} />
         {/* <Route path="/revenue" element={<Revenue />} /> */}
         <Route path="/tasks" element={<Tasks />} />
-        {/* <Route path="/settings" element={<Settings />} /> */}
+        <Route path="/settings" element={<Settings />} />
       </Route>
     </Routes>
   );
