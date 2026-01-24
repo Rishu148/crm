@@ -1,5 +1,5 @@
-const Lead = require("../models/Lead");
-const User = require("../models/User"); // Agent list ke liye zaroori
+const Lead = require("../models/lead");
+const User = require("../models/user"); // Agent list ke liye zaroori
 const xlsx = require("xlsx");
 
 // --- HELPER FUNCTION: Assignee Decide Karne Ke Liye ---

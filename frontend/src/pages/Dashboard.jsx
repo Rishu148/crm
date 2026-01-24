@@ -187,7 +187,8 @@ export default function Dashboard() {
                             <Tooltip 
                                 cursor={{fill: 'rgba(255,255,255,0.02)'}}
                                 contentStyle={{ backgroundColor: '#0A0A0C', border: '1px solid #27272a', borderRadius: '8px', color: '#fff' }}
-                                itemStyle={{ color: '#fff' }} 
+                                itemStyle={{ color: '#fff' }}
+                                 
                             />
                             <Bar dataKey="count" radius={[6, 6, 0, 0]} barSize={60}>
                                 {pipelineData.map((entry, index) => (
