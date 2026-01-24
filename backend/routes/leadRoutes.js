@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const { createLead, getLeads, bulkUpload, downloadTemplate, getAgents, assignLeads,updateLead, deleteLead,deleteLeadsBulk} = require("../controllers/leadController");
-const authMiddleware = require("../middleware/authMiddleware");
+const authMiddleware = require("../Middleware/authMiddleware");
 
 // Memory Storage for Excel Processing
 const storage = multer.memoryStorage();
