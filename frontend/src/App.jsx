@@ -1,60 +1,75 @@
-import { useState, useEffect } from "react"; 
+import { useState, useEffect, lazy, Suspense } from "react"; // 👈 lazy aur Suspense add kiya
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/authContext";
+
+// 🛡️ Static Imports (Commonly used)
 import LoadingScreen from "./pages/LoadingScreen"; 
 import ProtectedRoute from "./pages/ProtectedRoute"; 
 import Layout from "./layout/layout"; 
 import Login from "./login";
-import Register from "./register";
-import NotFound from "./pages/NotFound";
-import Home from "./pages/Home";
-import Dashboard from "./pages/Dashboard";
-import Contacts from "./pages/Contacts";
-import Pipeline from "./pages/Pipeline";
-import Settings from "./pages/Settings";
+
+// 🚀 Lazy Imports (Inhe alag chunks mein divide kar diya)
+// Isse Dashboard load karte waqt Pipeline ya Settings ka code download nahi hoga
+const Home = lazy(() => import("./pages/Home"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Contacts = lazy(() => import("./pages/Contacts"));
+const Pipeline = lazy(() => import("./pages/Pipeline"));
+const Settings = lazy(() => import("./pages/Settings"));
+const LeadModal = lazy(() => import("./pages/LeadModal"));
+const Register = lazy(() => import("./register"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Ek chota Loader fallback taaki lazy loading ke beech black screen na dikhe
+const PageLoader = () => <div className="min-h-screen bg-[#030303]" />;
 
 function App() {
-  // 🔄 LOGIC: 
-  // Agar session storage mein 'boot_played' nahi hai, toh ye FIRST VISIT hai.
-  // Tab loading TRUE hoga aur animation chalega.
-  const [loading, setLoading] = useState(() => {
-    return !sessionStorage.getItem("boot_played");
-  });
+  const { loading: authLoading, user } = useAuth();
+  const [bootLoading, setBootLoading] = useState(() => !sessionStorage.getItem("boot_played"));
+
+  useEffect(() => {
+    if (user && !sessionStorage.getItem("boot_played")) {
+      setBootLoading(true);
+    }
+  }, [user]);
 
   const handleAnimationComplete = () => {
-    setLoading(false);
-    // 🚩 Flag set kar diya taaki agli baar Refresh karne par bore na kare
     sessionStorage.setItem("boot_played", "true");
+    setBootLoading(false);
   };
 
-  if (loading) {
+  if (bootLoading) {
     return <LoadingScreen onComplete={handleAnimationComplete} />;
+  }
+
+  if (authLoading) {
+    return <div className="min-h-screen bg-[#030303]" />;
   }
 
   return (
     <div className="min-h-screen bg-[#030303] text-white">
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
-        
-        {/* Login Page ke andar humne alag se loader lagaya hai jo button click pe chalta hai */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+      {/* 📦 Suspense ensures your app doesn't crash while downloading chunks */}
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/login" element={user ? <Navigate to={user.role === 'admin' ? "/dashboard" : "/home"} replace /> : <Login />} />
+          <Route path="/register" element={user ? <Navigate to="/home" replace /> : <Register />} />
+          
+          <Route element={<Layout />}>
+            <Route element={<ProtectedRoute allowedRoles={["user", "admin"]} />}>
+              <Route path="/home" element={<Home />} />
+              <Route path="/contacts" element={<Contacts />} />
+              <Route path="/pipeline" element={<Pipeline />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/lead/:id" element={<LeadModal />} />
+            </Route>
 
-        <Route element={<Layout />}>
-          <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Route>
           </Route>
-          <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
-            <Route path="/home" element={<Home />} />
-          </Route>
-          <Route element={<ProtectedRoute allowedRoles={["user", "admin"]} />}>
-            <Route path="/contacts" element={<Contacts />} />
-            <Route path="/pipeline" element={<Pipeline />} />
-            <Route path="/settings" element={<Settings />} />
-          </Route>
-        </Route>
-
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+      </Suspense>
     </div>
   );
 }

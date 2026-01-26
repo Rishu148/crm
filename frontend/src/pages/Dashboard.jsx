@@ -385,91 +385,151 @@ export default function Dashboard() {
 
         {/* 3. LISTS (Refined Typography) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-8">
-          {/* Recent Activity */}
+          {/* Recent Activity Section */}
           <div className="bg-[#0A0A0C]/80 backdrop-blur-md border border-white/5 rounded-2xl p-7 shadow-2xl">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Bell size={16} className="text-sky-400" /> Latest Updates
               </h3>
             </div>
-            <div className="space-y-1">
+
+            <div className="space-y-4">
               {recentActivity.map((lead, index) => (
                 <div
                   key={lead._id}
-                  className="group flex items-center gap-4 p-3 rounded-xl hover:bg-white/[0.03] transition-colors border border-transparent hover:border-white/[0.02]"
+                  className="group flex gap-4 p-3 rounded-xl hover:bg-white/[0.03] transition-colors border border-transparent hover:border-white/[0.02] items-start"
                 >
-                  <div className="w-2 h-2 rounded-full bg-slate-700 group-hover:bg-indigo-400 transition-colors shadow-[0_0_8px_rgba(0,0,0,0)] group-hover:shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
+                  {/* Status Dot Indicator */}
+                  <div className="mt-1.5 w-2 h-2 rounded-full bg-slate-700 group-hover:bg-indigo-400 transition-colors shadow-[0_0_8px_rgba(0,0,0,0)] group-hover:shadow-[0_0_8px_rgba(99,102,241,0.5)] shrink-0"></div>
 
-                  <div className="flex-1 flex justify-between items-center">
-                    <div>
-                      <p className="text-sm text-slate-300 font-medium">
-                        <span className="text-white group-hover:text-indigo-300 transition-colors">
+                  <div className="flex-1">
+                    {/* TOP ROW: Name, Status, Time */}
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center flex-wrap gap-2">
+                        <span className="text-sm font-bold text-slate-200 group-hover:text-white transition-colors">
                           {lead.name}
                         </span>
-                        <span className="mx-2 text-slate-600 text-[10px] uppercase font-bold tracking-wider">
-                          to
-                        </span>
+
+                        {/* Status Badge */}
                         <span
-                          className={`text-xs font-bold ${
+                          className={`text-[10px] px-1.5 py-0.5 rounded border font-bold uppercase tracking-wide ${
                             lead.status === "Closed"
-                              ? "text-emerald-400"
+                              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                               : lead.status === "New"
-                                ? "text-sky-400"
-                                : "text-slate-400"
+                                ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                                : lead.status === "Interested"
+                                  ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                                  : "bg-slate-800 text-slate-400 border-slate-700"
                           }`}
                         >
                           {lead.status}
                         </span>
+                      </div>
+
+                      <span className="text-[10px] text-slate-600 font-mono font-medium whitespace-nowrap ml-2">
+                        {new Date(lead.updatedAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+
+                    {/* BOTTOM ROW: Agent Info (Updated By) */}
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      {/* Small Avatar for Agent */}
+                      <div className="w-4 h-4 rounded-md bg-[#1A1A1E] border border-white/10 flex items-center justify-center text-[8px] font-bold text-slate-400">
+                        {lead.assignedTo?.name?.charAt(0) || "S"}
+                      </div>
+
+                      <p className="text-[10px] text-slate-500">
+                        updated by{" "}
+                        <span className="text-slate-300 font-medium">
+                          {lead.assignedTo?.name || "System"}
+                        </span>
                       </p>
                     </div>
-                    <span className="text-[10px] text-slate-600 font-mono font-medium">
-                      {new Date(lead.updatedAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
                   </div>
                 </div>
               ))}
+
+              {recentActivity.length === 0 && (
+                <div className="text-center py-8 text-slate-600 text-xs">
+                  No recent activity found.
+                </div>
+              )}
             </div>
           </div>
 
           {/* Team Load */}
-          <div className="bg-[#0A0A0C]/80 backdrop-blur-md border border-white/5 rounded-2xl p-7 shadow-2xl">
+          {/* Team Workload Section (Distribution View) */}
+          <div className="bg-[#0A0A0C]/80 backdrop-blur-md border border-white/5 rounded-2xl p-7 shadow-2xl flex flex-col h-full">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <BarChart3 size={16} className="text-emerald-400" /> Workload
+                <LayoutGrid size={16} className="text-indigo-400" /> Lead
+                Distribution
               </h3>
+              <span className="text-[10px] text-slate-500 font-mono bg-white/5 px-2 py-1 rounded border border-white/5 uppercase tracking-wider">
+                Current Load
+              </span>
             </div>
 
-            <div className="space-y-5">
-              {agentWorkload.map((agent, index) => (
-                <div key={index}>
-                  <div className="flex justify-between text-xs mb-2">
-                    <span className="font-bold text-slate-300 flex items-center gap-2">
-                      {agent.name}
-                    </span>
-                    <span className="text-slate-500 font-mono">
-                      {agent.count} Leads
-                    </span>
+            <div className="space-y-5 flex-1 overflow-y-auto custom-scrollbar pr-1">
+              {agentWorkload.map((agent, index) => {
+                // Calculate Load Percentage based on max load in the team
+                const maxCount = Math.max(
+                  ...agentWorkload.map((a) => a.count),
+                  1,
+                );
+                const percent = (agent.count / maxCount) * 100;
+
+                // Load Logic: If load > 75% relative to max, color it Amber (Heavy), else Blue (Normal)
+                const isHeavy = percent > 80;
+                const barColor = isHeavy
+                  ? "from-amber-500 to-orange-500"
+                  : "from-indigo-500 to-cyan-500";
+                const badgeStyle = isHeavy
+                  ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                  : "bg-indigo-500/10 border-indigo-500/20 text-indigo-400";
+
+                return (
+                  <div key={index} className="group">
+                    <div className="flex justify-between items-center mb-2.5">
+                      {/* Left: Avatar & Name */}
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#18181b] border border-white/5 flex items-center justify-center text-xs font-bold text-slate-400 group-hover:text-white group-hover:border-white/10 transition-all shadow-inner">
+                          {agent.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <span className="text-sm font-bold text-slate-300 block group-hover:text-white transition-colors">
+                            {agent.name}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Right: Count Badge */}
+                      <div
+                        className={`px-2.5 py-1 rounded-md text-xs font-bold border ${badgeStyle} shadow-sm`}
+                      >
+                        {agent.count}
+                      </div>
+                    </div>
+
+                    {/* Load Bar Container */}
+                    <div className="w-full h-1.5 bg-[#1A1A1E] rounded-full overflow-hidden relative">
+                      {/* Load Bar */}
+                      <div
+                        className={`h-full rounded-full bg-gradient-to-r ${barColor} opacity-80 group-hover:opacity-100 transition-all duration-1000 ease-out shadow-[0_0_10px_currentColor]`}
+                        style={{ width: `${percent}%` }}
+                      ></div>
+                    </div>
                   </div>
-                  <div className="w-full h-1.5 bg-[#18181b] rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-1000 ${
-                        index === 0
-                          ? "bg-gradient-to-r from-indigo-500 to-sky-500"
-                          : index === 1
-                            ? "bg-gradient-to-r from-emerald-500 to-teal-500"
-                            : "bg-slate-600"
-                      }`}
-                      style={{ width: `${Math.min(agent.count * 8, 100)}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
+
               {agentWorkload.length === 0 && (
-                <div className="text-center py-10 opacity-40 text-sm">
-                  All clear, no active workload.
+                <div className="text-center py-10 opacity-40 text-sm flex flex-col items-center gap-2">
+                  <LayoutGrid size={24} />
+                  <span>No leads assigned yet.</span>
                 </div>
               )}
             </div>
@@ -528,7 +588,6 @@ const StatCard = ({ title, value, icon, trend, color }) => {
 
 const DashboardSkeleton = () => (
   <div className="min-h-screen bg-[#020202] p-8 space-y-8 relative overflow-hidden font-mono">
-    
     {/* 🟢 MATRIX GRID BACKGROUND */}
     <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.03)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
 
@@ -614,7 +673,7 @@ const DashboardSkeleton = () => (
 
         <div className="mt-8 flex gap-4">
           <div className="h-2 w-10 bg-cyan-500/30 rounded-full shadow-[0_0_5px_cyan]"></div>
-          <div className="h-2 w-10 bg-purple-500/30 rounded-full"></div>
+          {/* <div className="h-2 w-10 bg-purple-500/30 rounded-full"></div> */}
         </div>
       </div>
     </div>

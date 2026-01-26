@@ -109,13 +109,13 @@ export default function LeadModal({ lead, onClose, onUpdate, onDelete, currentUs
                             <div className="flex gap-3">
                                 <button 
                                     onClick={() => setShowDeleteConfirm(false)}
-                                    className="flex-1 py-2.5 rounded-xl border border-white/10 text-slate-300 text-xs font-bold hover:bg-white/5 transition-all"
+                                    className="flex-1 py-2.5 rounded-xl border border-white/10 text-slate-300 text-xs font-bold hover:bg-white/5 transition-all cursor-pointer"
                                 >
                                     Cancel
                                 </button>
                                 <button 
                                     onClick={() => { onDelete(lead._id); onClose(); }} 
-                                    className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-lg shadow-red-600/20 transition-all"
+                                    className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-lg shadow-red-600/20 transition-all cursor-pointer"
                                 >
                                     Yes, Delete
                                 </button>

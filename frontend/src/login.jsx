@@ -50,7 +50,7 @@ function Login() {
     setShowBootLoader(true);   // Cyber Loader shuru
   };
 
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
         setError("Please fill in all fields.");
@@ -60,26 +60,33 @@ function Login() {
     setError("");
     try {
       const res = await axios.post(`${API_URL}/auth/login`, formData, { withCredentials: true });
+      
+      // 🚩 Ye line add kar: loginAction se pehle flag set karo
+      sessionStorage.setItem("login_in_progress", "true"); 
+
       if (res.data.user) loginAction(res.data.user); 
-      handleLoginSuccess(res.data.user.role); // Updated function call karega
+      handleLoginSuccess(res.data.user.role); 
     } catch (err) {
       setError(err.response?.data?.message || "Invalid credentials.");
-      setIsLoading(false); // Error aaye to loader band
+      setIsLoading(false);
     } 
-  };
+};
 
-  const handleGoogleSuccess = async (credentialResponse) => {
+const handleGoogleSuccess = async (credentialResponse) => {
     setIsLoading(true);
     setError("");
     try {
         const res = await axios.post(`${API_URL}/auth/google`, { token: credentialResponse.credential }, { withCredentials: true });
-        if (res.data.user) loginAction(res.data.user); // Context update zaroori hai
+        
+        sessionStorage.setItem("login_in_progress", "true"); // 🚩 Ye line add kar
+        
+        if (res.data.user) loginAction(res.data.user); 
         handleLoginSuccess(res.data.user.role);
     } catch (err) {
         setError("Google authentication failed.");
         setIsLoading(false);
     } 
-  };
+};
 
   // 👇 4. AGAR BOOT LOADER TRUE HAI, TOH PURI SCREEN PE ANIMATION DIKHAO
   if (showBootLoader) {

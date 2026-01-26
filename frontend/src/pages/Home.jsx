@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../api/axios";
 import { useAuth } from "../context/authContext";
 import { 
@@ -9,14 +9,22 @@ import {
 import { 
   LayoutGrid, Phone, MessageCircle, Mail,
   CheckCircle, Clock, Briefcase, TrendingUp, Filter,
-  Calendar, X, ChevronRight, Globe, Hash, Zap, Trophy, Loader2, ArrowRight, ArrowUpRight
+  Calendar, X, ChevronRight, Globe, Hash, Zap, Trophy, Loader2, ArrowRight, ArrowUpRight, Eye
 } from "lucide-react";
+
+
 
 function Home() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [greeting, setGreeting] = useState("Welcome");
   
+  // 🕵️‍♂️ SPY LOGIC VARIABLES
+  const viewAsId = location.state?.viewAs; 
+  const viewAsName = location.state?.agentName;
+  const isSpying = !!viewAsId; // Boolean flag
+
   // Data States
   const [activeLeads, setActiveLeads] = useState([]);
   const [recentWins, setRecentWins] = useState([]);
@@ -28,6 +36,13 @@ function Home() {
   const [selectedLead, setSelectedLead] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Redirect Admin if no ID provided
+  useEffect(() => {
+    if (user?.role === 'admin' && !viewAsId) {
+        navigate("/dashboard", { replace: true });
+    }
+  }, [user, viewAsId, navigate]);
+
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour < 12) setGreeting("Good Morning");
@@ -36,19 +51,22 @@ function Home() {
   }, []);
 
   const fetchData = useCallback(async () => {
-    const userId = user?._id || user?.id;
-    if (!userId) {
-        if (user === null) setLoading(false); 
-        return;
+    // 🔥 TARGET ID LOGIC: Either ViewAs (Spy) or Self
+    const targetId = viewAsId || user?._id || user?.id;
+    
+    if (!targetId) {
+       if (user === null) setLoading(false); 
+       return;
     }
 
     try {
+      setLoading(true); // Ensure loading state while switching views
       const res = await api.get("/leads");
       const allLeads = res.data;
 
       const userLeads = allLeads.filter(lead => {
           const leadAgentId = lead.assignedTo?._id || lead.assignedTo?.id;
-          return leadAgentId === userId;
+          return leadAgentId === targetId; // Filter by Target ID
       });
       
       const active = userLeads.filter(l => ['New', 'Contacted', 'Interested'].includes(l.status));
@@ -85,12 +103,11 @@ function Home() {
     } finally {
         setLoading(false);
     }
-  }, [user]);
+  }, [user, viewAsId]); // Depend on viewAsId
 
   useEffect(() => { 
-      const userId = user?._id || user?.id;
-      if (userId) fetchData(); 
-  }, [user, fetchData]);
+      fetchData(); 
+  }, [fetchData]);
 
   const handleBackdropClick = (e) => {
       if (e.target.id === "modal-backdrop") setSelectedLead(null);
@@ -150,18 +167,43 @@ function Home() {
       {/* MAIN CONTENT */}
       <div className="max-w-[1600px] mx-auto px-8 pt-10 space-y-8 relative z-10 animate-in fade-in duration-500">
         
+        {/* 🕵️‍♂️ SPY BANNER (Only shows when Admin monitors someone) */}
+        {isSpying && (
+            <div className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl flex items-center justify-between animate-in slide-in-from-top-4 shadow-lg shadow-amber-900/20">
+                <div className="flex items-center gap-4 text-amber-400">
+                    <div className="p-2.5 bg-amber-500/20 rounded-xl animate-pulse border border-amber-500/20">
+                        <Eye size={20} />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-sm tracking-wide text-amber-300">SURVEILLANCE MODE ACTIVE</h3>
+                        <p className="text-xs text-amber-500/80 mt-0.5">You are viewing the terminal of agent: <span className="font-bold text-white bg-amber-500/20 px-2 py-0.5 rounded ml-1">{viewAsName}</span></p>
+                    </div>
+                </div>
+                <button 
+                    onClick={() => navigate("/dashboard")}
+                    className="px-5 py-2.5 bg-amber-500 text-black text-xs font-bold rounded-xl hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20 active:scale-95 cursor-pointer"
+                >
+                    EXIT MONITORING
+                </button>
+            </div>
+        )}
+
         <div className="flex flex-col md:flex-row justify-between items-end gap-6">
             <div>
                 <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">
-                    {greeting}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">{user?.name?.split(" ")[0]}</span>.
+                    {greeting}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
+                        {isSpying ? viewAsName?.split(" ")[0] : user?.name?.split(" ")[0]}
+                    </span>.
                 </h1>
                 <p className="text-slate-400 text-sm">
-                    You have <span className="text-white font-bold">{stats.active} opportunities</span> requiring action today.
+                    {isSpying ? "They" : "You"} have <span className="text-white font-bold">{stats.active} opportunities</span> requiring action today.
                 </p>
             </div>
-            <button onClick={() => navigate('/pipeline')} className="flex items-center gap-2 px-5 py-2.5 bg-[#0A0A0C] hover:bg-[#0F0F12] border border-white/10 rounded-xl text-sm font-bold text-white transition-all hover:border-indigo-500/30 cursor-pointer group">
-                Go to Pipeline <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform"/>
-            </button>
+            {!isSpying && (
+                <button onClick={() => navigate('/pipeline')} className="flex items-center gap-2 px-5 py-2.5 bg-[#0A0A0C] hover:bg-[#0F0F12] border border-white/10 rounded-xl text-sm font-bold text-white transition-all hover:border-indigo-500/30 cursor-pointer group">
+                    Go to Pipeline <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform"/>
+                </button>
+            )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -242,7 +284,6 @@ function Home() {
                                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-white shadow-inner transition-transform group-hover:scale-105 ${
                                         lead.status === 'New' ? 'bg-indigo-600' : 'bg-[#1A1A1E] border border-white/10'
                                     }`}>
-                                        {/* SAFEGUARD: Added fallback for name */}
                                         {(lead.name || "?").charAt(0).toUpperCase()}
                                     </div>
                                     <div>
@@ -304,7 +345,7 @@ function Home() {
         </div>
       </div>
 
-      {/* --- QUICK UPDATE MODAL (Fixed & Safeguarded) --- */}
+      {/* --- QUICK UPDATE MODAL (Inline - Same Logic as before) --- */}
       {selectedLead && (
         <div 
             id="modal-backdrop"
@@ -317,7 +358,6 @@ function Home() {
                 <div className="px-8 py-6 border-b border-white/5 bg-[#0F0F12] flex justify-between items-start shrink-0">
                     <div className="flex gap-4">
                         <div className="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center text-xl font-bold text-white shadow-lg shadow-indigo-500/30">
-                            {/* SAFEGUARD: .charAt on name safely */}
                             {(selectedLead.name || "?").charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -330,7 +370,7 @@ function Home() {
                     <button onClick={() => setSelectedLead(null)} className="p-2 hover:bg-white/5 rounded-lg text-slate-500 hover:text-white transition-all cursor-pointer"><X size={18}/></button>
                 </div>
 
-                {/* Details (Scrollable) */}
+                {/* Details */}
                 <div className="p-8 space-y-8 overflow-y-auto custom-scrollbar flex-1">
                     
                     <div>
@@ -339,11 +379,15 @@ function Home() {
                             {['New', 'Contacted', 'Interested', 'Closed'].map((status) => (
                                 <button 
                                     key={status}
+                                    // 🚫 Disable status change if in Spy Mode
+                                    disabled={isSpying}
                                     onClick={() => handleStatusUpdate(status)}
-                                    className={`py-2 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
+                                    className={`py-2 rounded-lg text-[10px] font-bold border transition-all ${
                                         selectedLead.status === status 
                                         ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-500/30' 
-                                        : 'bg-[#0F0F12] border-white/5 text-slate-400 hover:bg-white/5 hover:text-white'
+                                        : isSpying 
+                                            ? 'bg-[#0F0F12] border-white/5 text-slate-600 cursor-not-allowed opacity-50'
+                                            : 'bg-[#0F0F12] border-white/5 text-slate-400 hover:bg-white/5 hover:text-white cursor-pointer'
                                     }`}
                                 >
                                     {status === 'Interested' ? 'In Progress' : status}
@@ -365,7 +409,6 @@ function Home() {
                         </div>
                         <div className="p-3 bg-[#0F0F12] rounded-xl border border-white/5">
                             <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">System ID</span>
-                            {/* SAFEGUARD: Safe access to ID */}
                             <div className="flex items-center gap-2 mt-1 text-xs text-slate-300 font-mono"><Hash size={12} className="text-slate-600"/> {(selectedLead._id || selectedLead.id || "000000").toString().slice(-6)}</div>
                         </div>
                     </div>
@@ -415,119 +458,28 @@ const ActionButton = ({ icon, label, color, href }) => {
 
 const HomeSkeleton = () => (
     <div className="min-h-screen bg-[#020202] p-8 space-y-8 relative overflow-hidden font-mono">
-        
-        {/* 1. MATRIX BACKGROUND PATTERN */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.03)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
-
-        {/* ⚡ 2. TOP-TO-BOTTOM SCANNER LIGHT (Ye hai wo line jo chahiye thi) */}
         <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.8)] animate-[scanline_2.5s_linear_infinite] z-50"></div>
         <style>{`@keyframes scanline { 0% { top: 0%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }`}</style>
-
-        {/* --- NAVBAR SKELETON --- */}
         <div className="flex justify-between items-center pb-6 border-b border-cyan-900/30 relative z-10">
-             <div className="flex items-center gap-4">
-                <div className="h-10 w-10 bg-cyan-950/30 border border-cyan-500/20 rounded-xl"></div>
-                <div className="space-y-2">
-                    <div className="h-4 w-32 bg-cyan-900/20 rounded"></div>
-                    <div className="h-2 w-20 bg-cyan-900/20 rounded"></div>
-                </div>
-             </div>
+             <div className="flex items-center gap-4"><div className="h-10 w-10 bg-cyan-950/30 border border-cyan-500/20 rounded-xl"></div><div className="space-y-2"><div className="h-4 w-32 bg-cyan-900/20 rounded"></div><div className="h-2 w-20 bg-cyan-900/20 rounded"></div></div></div>
              <div className="h-10 w-40 bg-cyan-950/30 border border-cyan-500/20 rounded-xl hidden md:block"></div>
         </div>
-
-        {/* --- WELCOME SECTION --- */}
         <div className="flex justify-between items-end relative z-10 pt-2">
-             <div className="space-y-3 w-full max-w-lg">
-                <div className="h-10 w-3/4 bg-cyan-950/20 border-l-4 border-cyan-500 rounded-r-lg relative overflow-hidden">
-                     <div className="absolute inset-0 bg-cyan-500/10 animate-pulse"></div>
-                </div>
-                <div className="h-3 w-1/2 bg-cyan-900/20 rounded"></div>
-             </div>
+             <div className="space-y-3 w-full max-w-lg"><div className="h-10 w-3/4 bg-cyan-950/20 border-l-4 border-cyan-500 rounded-r-lg relative overflow-hidden"><div className="absolute inset-0 bg-cyan-500/10 animate-pulse"></div></div><div className="h-3 w-1/2 bg-cyan-900/20 rounded"></div></div>
              <div className="h-10 w-32 bg-cyan-950/30 border border-cyan-500/20 rounded-xl"></div>
         </div>
-
-        {/* --- GRID ROW 1: STATS & CHARTS --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10">
-            
-            {/* Col 1: 4 Stat Cards (2x2 Grid match kiya hai) */}
             <div className="grid grid-cols-2 gap-4 lg:col-span-1">
-                {[1,2,3,4].map(i => (
-                    <div key={i} className="h-32 bg-[#050505] border border-cyan-800/30 rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden">
-                        <div className="h-8 w-8 bg-cyan-900/20 rounded-xl border border-cyan-500/20"></div>
-                        <div className="space-y-2">
-                            <div className="h-6 w-16 bg-cyan-900/30 rounded"></div>
-                            <div className="h-2 w-12 bg-cyan-900/20 rounded"></div>
-                        </div>
-                    </div>
-                ))}
+                {[1,2,3,4].map(i => (<div key={i} className="h-32 bg-[#050505] border border-cyan-800/30 rounded-3xl p-5 flex flex-col justify-between"><div className="h-8 w-8 bg-cyan-900/20 rounded-xl border border-cyan-500/20"></div><div className="space-y-2"><div className="h-6 w-16 bg-cyan-900/30 rounded"></div><div className="h-2 w-12 bg-cyan-900/20 rounded"></div></div></div>))}
             </div>
-
-            {/* Col 2: Bar Chart Placeholder */}
-            <div className="lg:col-span-1 bg-[#050505] border border-cyan-800/30 rounded-3xl p-6 relative flex flex-col">
-                 <div className="h-4 w-32 bg-cyan-900/20 rounded mb-8 border-l-2 border-cyan-500"></div>
-                 <div className="flex items-end justify-between flex-1 gap-2 px-2 border-b border-l border-cyan-900/30 pb-2 pl-2">
-                    {[40, 70, 50, 80, 60].map((h,i) => (
-                        <div key={i} className="w-full bg-cyan-500/10 border-t border-cyan-500/30 relative" style={{height: `${h}%`}}></div>
-                    ))}
-                 </div>
-            </div>
-
-            {/* Col 3: Pie Chart Placeholder */}
-            <div className="lg:col-span-1 bg-[#050505] border border-cyan-800/30 rounded-3xl p-6 flex flex-col items-center justify-center relative">
-                 <div className="absolute top-6 left-6 h-4 w-32 bg-cyan-900/20 rounded border-l-2 border-cyan-500"></div>
-                 <div className="relative mt-4">
-                     <div className="h-40 w-40 rounded-full border-4 border-cyan-900/20 border-dashed animate-[spin_10s_linear_infinite]"></div>
-                     <div className="absolute inset-0 h-40 w-40 rounded-full border-t-4 border-cyan-500 animate-spin"></div>
-                 </div>
-                 <div className="mt-6 flex gap-3">
-                     <div className="h-2 w-8 bg-cyan-500/30 rounded-full"></div>
-                     <div className="h-2 w-8 bg-purple-500/30 rounded-full"></div>
-                 </div>
-            </div>
+            <div className="lg:col-span-1 bg-[#050505] border border-cyan-800/30 rounded-3xl p-6 relative flex flex-col"><div className="h-4 w-32 bg-cyan-900/20 rounded mb-8 border-l-2 border-cyan-500"></div><div className="flex items-end justify-between flex-1 gap-2 px-2 border-b border-l border-cyan-900/30 pb-2 pl-2">{[40, 70, 50, 80, 60].map((h,i) => (<div key={i} className="w-full bg-cyan-500/10 border-t border-cyan-500/30 relative" style={{height: `${h}%`}}></div>))}</div></div>
+            <div className="lg:col-span-1 bg-[#050505] border border-cyan-800/30 rounded-3xl p-6 flex flex-col items-center justify-center relative"><div className="absolute top-6 left-6 h-4 w-32 bg-cyan-900/20 rounded border-l-2 border-cyan-500"></div><div className="relative mt-4"><div className="h-40 w-40 rounded-full border-4 border-cyan-900/20 border-dashed animate-[spin_10s_linear_infinite]"></div><div className="absolute inset-0 h-40 w-40 rounded-full border-t-4 border-cyan-500 animate-spin"></div></div></div>
         </div>
-
-        {/* --- GRID ROW 2: LISTS --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10 h-[400px]">
-            
-            {/* Col 1-2: Action Required (Pending Leads) */}
-            <div className="lg:col-span-2 bg-[#050505] border border-cyan-800/30 rounded-3xl p-6 flex flex-col">
-                <div className="flex justify-between mb-6">
-                    <div className="h-5 w-40 bg-cyan-900/20 rounded border-l-2 border-amber-500"></div>
-                    <div className="h-5 w-20 bg-amber-500/10 rounded border border-amber-500/20"></div>
-                </div>
-                <div className="space-y-3">
-                    {[1,2,3,4].map(i => (
-                        <div key={i} className="h-16 w-full bg-cyan-950/10 border border-cyan-900/20 rounded-2xl flex items-center px-4 gap-4 relative overflow-hidden">
-                             <div className="h-10 w-10 bg-cyan-900/20 rounded-xl"></div>
-                             <div className="flex-1 space-y-2">
-                                 <div className="h-3 w-32 bg-cyan-900/20 rounded"></div>
-                                 <div className="h-2 w-20 bg-cyan-900/10 rounded"></div>
-                             </div>
-                             <div className="h-6 w-20 bg-cyan-900/10 rounded"></div>
-                             {/* Scanning Glitch Effect */}
-                             <div className="absolute inset-0 bg-cyan-500/5 -translate-x-full animate-[shimmer_2s_infinite]" style={{animationDelay: `${i * 0.2}s`}}></div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Col 3: Recent Wins */}
-            <div className="lg:col-span-1 bg-[#050505] border border-cyan-800/30 rounded-3xl p-6">
-                 <div className="h-5 w-32 bg-cyan-900/20 rounded mb-6 border-l-2 border-emerald-500"></div>
-                 <div className="space-y-3">
-                    {[1,2,3,4].map(i => (
-                        <div key={i} className="h-16 w-full bg-emerald-900/5 border border-emerald-500/10 rounded-2xl flex items-center px-4 gap-4">
-                             <div className="h-10 w-10 rounded-full bg-emerald-500/10 border border-emerald-500/20"></div>
-                             <div className="flex-1 space-y-2">
-                                 <div className="h-3 w-24 bg-emerald-900/20 rounded"></div>
-                                 <div className="h-2 w-16 bg-emerald-900/10 rounded"></div>
-                             </div>
-                        </div>
-                    ))}
-                 </div>
-            </div>
+            <div className="lg:col-span-2 bg-[#050505] border border-cyan-800/30 rounded-3xl p-6 flex flex-col"><div className="flex justify-between mb-6"><div className="h-5 w-40 bg-cyan-900/20 rounded border-l-2 border-amber-500"></div><div className="h-5 w-20 bg-amber-500/10 rounded border border-amber-500/20"></div></div><div className="space-y-3">{[1,2,3,4].map(i => (<div key={i} className="h-16 w-full bg-cyan-950/10 border border-cyan-900/20 rounded-2xl flex items-center px-4 gap-4 relative overflow-hidden"><div className="h-10 w-10 bg-cyan-900/20 rounded-xl"></div><div className="flex-1 space-y-2"><div className="h-3 w-32 bg-cyan-900/20 rounded"></div><div className="h-2 w-20 bg-cyan-900/10 rounded"></div></div><div className="h-6 w-20 bg-cyan-900/10 rounded"></div><div className="absolute inset-0 bg-cyan-500/5 -translate-x-full animate-[shimmer_2s_infinite]" style={{animationDelay: `${i * 0.2}s`}}></div></div>))}</div></div>
+            <div className="lg:col-span-1 bg-[#050505] border border-cyan-800/30 rounded-3xl p-6"><div className="h-5 w-32 bg-cyan-900/20 rounded mb-6 border-l-2 border-emerald-500"></div><div className="space-y-3">{[1,2,3,4].map(i => (<div key={i} className="h-16 w-full bg-emerald-900/5 border border-emerald-500/10 rounded-2xl flex items-center px-4 gap-4"><div className="h-10 w-10 rounded-full bg-emerald-500/10 border border-emerald-500/20"></div><div className="flex-1 space-y-2"><div className="h-3 w-24 bg-emerald-900/20 rounded"></div><div className="h-2 w-16 bg-emerald-900/10 rounded"></div></div></div>))}</div></div>
         </div>
-
     </div>
 );
 

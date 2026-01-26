@@ -174,8 +174,8 @@ exports.assignLeads = async (req, res) => {
 
 exports.updateLead = async (req, res) => {
   try {
-    const { id } = req.params; // URL se ID milegi
-    const updates = req.body; // Jo data update karna hai (e.g., status)
+    const { id } = req.params; 
+    const updates = req.body; 
 
     const updatedLead = await Lead.findByIdAndUpdate(id, updates, { new: true });
 
