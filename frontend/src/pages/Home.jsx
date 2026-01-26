@@ -272,9 +272,9 @@ function Home() {
                     </span>
                 </div>
 
-                <div className="space-y-3">
+                <div className=" space-y-3 overflow-y-auto max-h-[400px] custom-scrollbar pr-2">
                     {activeLeads.length > 0 ? (
-                        activeLeads.slice(0, 5).map((lead) => (
+                        activeLeads.map((lead) => (
                             <div 
                                 key={lead._id || lead.id} 
                                 onClick={() => setSelectedLead(lead)} 

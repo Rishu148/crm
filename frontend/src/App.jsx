@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from "react"; // 👈 lazy aur Suspense add kiya
+import { useState, useEffect, lazy, Suspense } from "react"; 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/authContext";
 
@@ -8,7 +8,6 @@ import ProtectedRoute from "./pages/ProtectedRoute";
 import Layout from "./layout/layout"; 
 import Login from "./login";
 
-// 🚀 Lazy Imports (Inhe alag chunks mein divide kar diya)
 // Isse Dashboard load karte waqt Pipeline ya Settings ka code download nahi hoga
 const Home = lazy(() => import("./pages/Home"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
