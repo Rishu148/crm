@@ -44,7 +44,7 @@ function NotFound() {
         .animate-radar { animation: radar-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; }
         .animate-glitch { animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite; animation-play-state: paused; }
         .group:hover .animate-glitch { animation-play-state: running; }
-        // @keyframes scanline { 0% { top: 0%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        @keyframes scanline { 0% { top: 0%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
       `}</style>
 
       {/* 🌌 Background Atmosphere */}

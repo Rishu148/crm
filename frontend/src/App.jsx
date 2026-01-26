@@ -59,6 +59,7 @@ function App() {
               <Route path="/pipeline" element={<Pipeline />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/lead/:id" element={<LeadModal />} />
+              <Route path="/NotFound" element={<NotFound/>}/>
             </Route>
 
             <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
@@ -66,7 +67,7 @@ function App() {
             </Route>
           </Route>
           
-          <Route path="*" element={<Navigate to="/login" />} />
+          <Route path="*" element={<NotFound/>} />
         </Routes>
       </Suspense>
     </div>
