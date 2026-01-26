@@ -1,11 +1,11 @@
-import { useState, useEffect, lazy, Suspense } from "react"; 
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/authContext";
 
 // 🛡️ Static Imports (Commonly used)
-import LoadingScreen from "./pages/LoadingScreen"; 
-import ProtectedRoute from "./pages/ProtectedRoute"; 
-import Layout from "./layout/layout"; 
+import LoadingScreen from "./pages/LoadingScreen";
+import ProtectedRoute from "./pages/ProtectedRoute";
+import Layout from "./layout/layout";
 import Login from "./login";
 
 // Isse Dashboard load karte waqt Pipeline ya Settings ka code download nahi hoga
@@ -49,9 +49,13 @@ function App() {
       {/* 📦 Suspense ensures your app doesn't crash while downloading chunks */}
       <Suspense fallback={<PageLoader />}>
         <Routes>
+          <Route
+            path="/"
+            element={<Navigate to={user ? (user.role === 'admin' ? "/dashboard" : "/home") : "/login"} replace />}
+          />
           <Route path="/login" element={user ? <Navigate to={user.role === 'admin' ? "/dashboard" : "/home"} replace /> : <Login />} />
           <Route path="/register" element={user ? <Navigate to="/home" replace /> : <Register />} />
-          
+
           <Route element={<Layout />}>
             <Route element={<ProtectedRoute allowedRoles={["user", "admin"]} />}>
               <Route path="/home" element={<Home />} />
@@ -59,15 +63,14 @@ function App() {
               <Route path="/pipeline" element={<Pipeline />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/lead/:id" element={<LeadModal />} />
-              <Route path="/NotFound" element={<NotFound/>}/>
             </Route>
 
             <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
               <Route path="/dashboard" element={<Dashboard />} />
             </Route>
           </Route>
-          
-          <Route path="*" element={<NotFound/>} />
+
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </div>
