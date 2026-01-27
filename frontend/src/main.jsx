@@ -7,7 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import axios from "axios";
-import { AuthProvider } from "./context/authContext.jsx";
+import { AuthProvider } from "./context/AuthContext.jsx";
 
 axios.defaults.withCredentials = true;
 
