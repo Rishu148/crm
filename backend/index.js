@@ -30,6 +30,7 @@ connectDB();
 
 const app = express();
 app.use(cookieParser());
+app.use(express.json());
 
 app.use(cors({
   origin: [
@@ -46,8 +47,6 @@ app.use(cors({
 app.options('(.*)', cors());
 
 
-// app.use(cors());
-app.use(express.json());
 
 
 
