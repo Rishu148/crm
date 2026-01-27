@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
-import { useAuth } from "./context/authContext";
+import { useAuth } from "./context/authContext.jsx";
 import {
   Mail,
   Lock,
@@ -15,7 +15,7 @@ import {
   CheckCircle2,
   Shield
 } from "lucide-react";
-import LoadingScreen from "./pages/LoadingScreen"; 
+import LoadingScreen from "./pages/LoadingScreen.jsx"; 
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 

@@ -1,10 +1,10 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./context/authContext";
-import LoadingScreen from "./pages/LoadingScreen";
-import ProtectedRoute from "./pages/ProtectedRoute";
-import Layout from "./layout/layout";
-import Login from "./login";
+import { useAuth } from "./context/authContext.jsx";
+import LoadingScreen from "./pages/LoadingScreen.jsx";
+import ProtectedRoute from "./pages/ProtectedRoute.jsx";
+import Layout from "./layout/layout.jsx";
+import Login from "./login.jsx";
 
 // Isse Dashboard load karte waqt Pipeline ya Settings ka code download nahi hoga
 const Home = lazy(() => import("./pages/Home"));
