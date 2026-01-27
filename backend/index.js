@@ -42,7 +42,9 @@ app.use(cors({
 }));
 
 // ✨ Pre-flight requests (204 error) ko handle karne ke liye
-app.options('*', cors());
+// '*' ki jagah '(.*)' use karo naye versions ke liye
+app.options('(.*)', cors());
+
 
 // app.use(cors());
 app.use(express.json());
