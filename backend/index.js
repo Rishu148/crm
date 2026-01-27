@@ -45,7 +45,7 @@ app.get("/check", (req, res) => {
 app.use(cookieParser());
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "https://sales-crm-frontend-puce.vercel.app/",
   credentials: true,               
 })
 );
