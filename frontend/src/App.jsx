@@ -1,6 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./context/authContext";
+import { useAuth } from "./context/AuthContext";
 
 // 🛡️ Static Imports (Commonly used)
 import LoadingScreen from "./pages/LoadingScreen";
@@ -23,7 +23,9 @@ const PageLoader = () => <div className="min-h-screen bg-[#030303]" />;
 
 function App() {
   const { loading: authLoading, user } = useAuth();
-  const [bootLoading, setBootLoading] = useState(() => !sessionStorage.getItem("boot_played"));
+  const [bootLoading, setBootLoading] = useState(
+    () => !sessionStorage.getItem("boot_played"),
+  );
 
   useEffect(() => {
     if (user && !sessionStorage.getItem("boot_played")) {
@@ -50,12 +52,42 @@ function App() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route
-            path="/"element={<Navigate to={user ? (user.role === 'admin' ? "/dashboard" : "/home") : "/login"} replace />}/>
-          <Route path="/login" element={user ? <Navigate to={user.role === 'admin' ? "/dashboard" : "/home"} replace /> : <Login />} />
-          <Route path="/register" element={user ? <Navigate to="/home" replace /> : <Register />} />
+            path="/"
+            element={
+              <Navigate
+                to={
+                  user
+                    ? user.role === "admin"
+                      ? "/dashboard"
+                      : "/home"
+                    : "/login"
+                }
+                replace
+              />
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              user ? (
+                <Navigate
+                  to={user.role === "admin" ? "/dashboard" : "/home"}
+                  replace
+                />
+              ) : (
+                <Login />
+              )
+            }
+          />
+          <Route
+            path="/register"
+            element={user ? <Navigate to="/home" replace /> : <Register />}
+          />
 
           <Route element={<Layout />}>
-            <Route element={<ProtectedRoute allowedRoles={["user", "admin"]} />}>
+            <Route
+              element={<ProtectedRoute allowedRoles={["user", "admin"]} />}
+            >
               <Route path="/home" element={<Home />} />
               <Route path="/contacts" element={<Contacts />} />
               <Route path="/pipeline" element={<Pipeline />} />
