@@ -1,11 +1,17 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "../api/axios";
-import { useAuth } from "../context/authContext";
-import { 
-  BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid,
-  PieChart, Pie, Legend
-} from "recharts";
+import { useAuth } from "../context/authContext.jsx";
+import BarChart from "recharts/es6/cartesian/BarChart";
+import Bar from "recharts/es6/cartesian/Bar";
+import XAxis from "recharts/es6/cartesian/XAxis";
+import Tooltip from "recharts/es6/component/Tooltip";
+import ResponsiveContainer from "recharts/es6/component/ResponsiveContainer";
+import Cell from "recharts/es6/component/Cell";
+import CartesianGrid from "recharts/es6/cartesian/CartesianGrid";
+import PieChart from "recharts/es6/polar/PieChart";
+import Pie from "recharts/es6/polar/Pie";
+import Legend from "recharts/es6/component/Legend";
 import { 
   LayoutGrid, Phone, MessageCircle, Mail,
   CheckCircle, Clock, Briefcase, TrendingUp, Filter,

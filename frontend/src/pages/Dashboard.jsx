@@ -2,19 +2,17 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { useAuth } from "../context/authContext.jsx";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
+import PieChart from "recharts/es6/polar/PieChart";
+import Pie from "recharts/es6/polar/Pie";
+import Cell from "recharts/es6/component/Cell";
+import Legend from "recharts/es6/component/Legend";
+import BarChart from "recharts/es6/cartesian/BarChart";
+import Bar from "recharts/es6/cartesian/Bar";
+import XAxis from "recharts/es6/cartesian/XAxis";
+import YAxis from "recharts/es6/cartesian/YAxis";
+import Tooltip from "recharts/es6/component/Tooltip";
+import ResponsiveContainer from "recharts/es6/component/ResponsiveContainer";
+import CartesianGrid from "recharts/es6/cartesian/CartesianGrid";
 import {
   Users,
   Briefcase,
