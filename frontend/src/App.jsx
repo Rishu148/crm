@@ -11,7 +11,7 @@ const Home = lazy(() => import("./pages/Home"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Contacts = lazy(() => import("./pages/Contacts"));
 const Pipeline = lazy(() => import("./pages/Pipeline"));
-const Settings = lazy(() => import("./pages/settings"));
+const Settings = lazy(() => import("./pages/Settings.jsx"));
 const LeadModal = lazy(() => import("./pages/LeadModal"));
 const Register = lazy(() => import("./register"));
 const NotFound = lazy(() => import("./pages/NotFound"));
