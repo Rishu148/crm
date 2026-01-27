@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { useAuth } from "./context/authContext.jsx";
+import api from "./api/axios"; // 👈 Apna instance import kar
 import {
   Mail,
   Lock,
@@ -17,7 +18,7 @@ import {
 } from "lucide-react";
 import LoadingScreen from "./pages/LoadingScreen.jsx"; 
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+// const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
 function Login() {
   const navigate = useNavigate();
@@ -57,7 +58,7 @@ function Login() {
     setIsLoading(true);
     setError("");
     try {
-      const res = await axios.post(`${API_URL}/auth/login`, formData, { withCredentials: true });
+      const res = await axios.post("/auth/login", formData, { withCredentials: true });
       
       // 🚩 Ye line add kar: loginAction se pehle flag set karo
       sessionStorage.setItem("login_in_progress", "true"); 
