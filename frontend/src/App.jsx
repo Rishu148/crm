@@ -1,6 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "./context/authContext";
 
 // 🛡️ Static Imports (Commonly used)
 import LoadingScreen from "./pages/LoadingScreen";
@@ -13,7 +13,7 @@ const Home = lazy(() => import("./pages/Home"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Contacts = lazy(() => import("./pages/Contacts"));
 const Pipeline = lazy(() => import("./pages/Pipeline"));
-const Settings = lazy(() => import("./pages/settings"));
+const Settings = lazy(() => import("./pages/Settings"));
 const LeadModal = lazy(() => import("./pages/LeadModal"));
 const Register = lazy(() => import("./register"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -91,7 +91,7 @@ function App() {
               <Route path="/home" element={<Home />} />
               <Route path="/contacts" element={<Contacts />} />
               <Route path="/pipeline" element={<Pipeline />} />
-              <Route path="/settings" element={<Settings />} />
+              <Route path="/Settings" element={<Settings />} />
               <Route path="/lead/:id" element={<LeadModal />} />
             </Route>
 
