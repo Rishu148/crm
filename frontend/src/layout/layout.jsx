@@ -1,4 +1,4 @@
-import Sidebar from "./Sidebar";
+import Sidebar from "./sidebar";
 import { Outlet } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import CommandDesk from "../pages/CommandDesk"; 
