@@ -6,7 +6,6 @@ import ProtectedRoute from "./pages/ProtectedRoute.jsx";
 import Layout from "./layout/layout.jsx";
 import Login from "./login.jsx";
 
-// Isse Dashboard load karte waqt Pipeline ya Settings ka code download nahi hoga
 const Home = lazy(() => import("./pages/Home"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Contacts = lazy(() => import("./pages/Contacts"));
