@@ -16,7 +16,6 @@ const LeadModal = lazy(() => import("./pages/LeadModal"));
 const Register = lazy(() => import("./register"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Ek chota Loader fallback taaki lazy loading ke beech black screen na dikhe
 const PageLoader = () => <div className="min-h-screen bg-[#030303]" />;
 
 function App() {

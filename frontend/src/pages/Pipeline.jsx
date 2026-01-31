@@ -540,48 +540,67 @@ const ActionButton = ({ icon, label, href, color }) => {
     return <a href={href} target="_blank" rel="noreferrer" className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl border transition-all active:scale-[0.98] hover:-translate-y-0.5 font-bold text-xs cursor-pointer ${colors[color]}`}>{icon}<span className="tracking-wide hidden sm:inline">{label}</span></a>;
 };
 
-// SKELETON RE-USED AS IT IS
+// 1. Pehle styles ko component ke bahar rakho
+const scanlineStyles = `
+  @keyframes scanline {
+    0% { top: -5%; opacity: 0; }
+    5% { opacity: 1; }
+    95% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+`;
+
 const PipelineSkeleton = () => (
   <div className="flex flex-col h-screen bg-[#020202] overflow-hidden relative font-mono">
+    {/* 🚩 YE LINE ZAROORI HAI: Browser ko animation samjhane ke liye */}
+    <style>{scanlineStyles}</style>
+
     <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.03)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
-    <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.8)] animate-[scanline_2.5s_linear_infinite] z-50"></div>
+    
+    {/* Scanline Div */}
+    <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.8)] animate-[scanline_2.5s_linear_infinite] z-[100]"></div>
+    
     <div className="px-8 py-5 flex-none border-b border-cyan-900/30 bg-[#020202]/90 backdrop-blur-xl z-20 relative">
-       <div className="flex flex-col xl:flex-row justify-between items-center gap-6">
-          <div className="space-y-2">
-             <div className="h-8 w-48 bg-cyan-900/20 border-l-4 border-cyan-500 rounded-r"></div>
-             <div className="h-3 w-32 bg-cyan-900/10 rounded"></div>
-          </div>
-          <div className="flex gap-4 w-full xl:w-auto">
-             <div className="h-12 w-full xl:w-80 bg-cyan-900/10 border border-cyan-500/20 rounded-xl"></div>
-             <div className="h-12 w-32 bg-cyan-500/20 border border-cyan-500/30 rounded-xl"></div>
-          </div>
-       </div>
+        <div className="flex flex-col xl:flex-row justify-between items-center gap-6">
+           <div className="space-y-2">
+              <div className="h-8 w-48 bg-cyan-900/20 border-l-4 border-cyan-500 rounded-r"></div>
+              <div className="h-3 w-32 bg-cyan-900/10 rounded"></div>
+           </div>
+           <div className="flex gap-4 w-full xl:w-auto">
+              <div className="h-12 w-full xl:w-80 bg-cyan-900/10 border border-cyan-500/20 rounded-xl"></div>
+              <div className="h-12 w-32 bg-cyan-500/20 border border-cyan-500/30 rounded-xl"></div>
+           </div>
+        </div>
     </div>
     <div className="flex-1 overflow-x-auto overflow-y-hidden p-8 z-10">
-       <div className="flex gap-6 h-full min-w-max pb-4">
-          {[1, 2, 3, 4, 5].map((colIndex) => (
-             <div key={colIndex} className="min-w-[320px] w-[320px] flex flex-col h-full rounded-3xl bg-[#050505] border border-cyan-800/30 shadow-xl relative overflow-hidden">
-                <div className="p-4 border-b border-cyan-900/30 flex justify-between items-center bg-cyan-900/5">
-                   <div className="flex items-center gap-3">
-                      <div className="h-4 w-24 bg-cyan-900/30 rounded"></div>
-                      <div className="h-5 w-8 bg-cyan-900/20 rounded border border-cyan-500/10"></div>
-                   </div>
-                   <div className="h-4 w-4 bg-cyan-900/20 rounded"></div>
-                </div>
-                <div className="p-3 space-y-3 overflow-y-hidden flex-1">
-                   {[1, 2, 3].map((cardIndex) => (
-                      <div key={cardIndex} className="rounded-2xl p-4 bg-[#0A0A0C] border border-cyan-900/20 relative overflow-hidden group" style={{ opacity: 1 - (cardIndex * 0.15) }}>
-                         <div className="flex gap-2 mb-3"><div className="h-4 w-16 bg-cyan-900/20 rounded border border-cyan-500/10"></div></div>
-                         <div className="h-5 w-3/4 bg-cyan-900/30 rounded mb-3 border-l-2 border-cyan-500/50"></div>
-                         <div className="space-y-2 mb-4"><div className="h-3 w-1/2 bg-cyan-900/10 rounded"></div><div className="h-3 w-2/3 bg-cyan-900/10 rounded"></div></div>
-                         <div className="pt-3 border-t border-cyan-900/20 flex justify-between items-center"><div className="h-3 w-16 bg-cyan-900/20 rounded"></div><div className="h-6 w-6 rounded-full bg-cyan-900/20"></div></div>
-                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" style={{animationDelay: `${colIndex * 0.2}s`}}></div>
-                      </div>
-                   ))}
-                </div>
-             </div>
-          ))}
-       </div>
+        <div className="flex gap-6 h-full min-w-max pb-4">
+           {[1, 2, 3, 4, 5].map((colIndex) => (
+              <div key={colIndex} className="min-w-[320px] w-[320px] flex flex-col h-full rounded-3xl bg-[#050505] border border-cyan-800/30 shadow-xl relative overflow-hidden">
+                 <div className="p-4 border-b border-cyan-900/30 flex justify-between items-center bg-cyan-900/5">
+                    <div className="flex items-center gap-3">
+                       <div className="h-4 w-24 bg-cyan-900/30 rounded"></div>
+                       <div className="h-5 w-8 bg-cyan-900/20 rounded border border-cyan-500/10"></div>
+                    </div>
+                    <div className="h-4 w-4 bg-cyan-900/20 rounded"></div>
+                 </div>
+                 <div className="p-3 space-y-3 overflow-y-hidden flex-1">
+                    {[1, 2, 3].map((cardIndex) => (
+                       <div key={cardIndex} className="rounded-2xl p-4 bg-[#0A0A0C] border border-cyan-900/20 relative overflow-hidden group" style={{ opacity: 1 - (cardIndex * 0.15) }}>
+                          <div className="flex gap-2 mb-3"><div className="h-4 w-16 bg-cyan-900/20 rounded border border-cyan-500/10"></div></div>
+                          <div className="h-5 w-3/4 bg-cyan-900/30 rounded mb-3 border-l-2 border-cyan-500/50"></div>
+                          <div className="space-y-2 mb-4"><div className="h-3 w-1/2 bg-cyan-900/10 rounded"></div><div className="h-3 w-2/3 bg-cyan-900/10 rounded"></div></div>
+                          <div className="pt-3 border-t border-cyan-900/20 flex justify-between items-center"><div className="h-3 w-16 bg-cyan-900/20 rounded"></div><div className="h-6 w-6 rounded-full bg-cyan-900/20"></div></div>
+                          {/* Shimmer effect inside cards */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" style={{animationDelay: `${colIndex * 0.2}s`}}></div>
+                       </div>
+                    ))}
+                 </div>
+              </div>
+           ))}
+        </div>
     </div>
   </div>
 );
