@@ -7,43 +7,39 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // const fetchUser = async () => {
+  //   setLoading(true); 
+  //   try {
+  //     const res = await api.get("/auth/me");
+  //     setUser(res.data?.user || null);
+  //   } catch (err) {
+  //     setUser(null);
+  //   } finally {
+  //     setLoading(false); 
+  //   }
+  // };
+
+
   const fetchUser = async () => {
-    setLoading(true); 
-    try {
-      const res = await api.get("/auth/me");
-      setUser(res.data?.user || null);
-    } catch (err) {
-      setUser(null);
-    } finally {
-      setLoading(false); 
-    }
-  };
+  const isNewTab = !sessionStorage.getItem("tab_session_active");
 
-
-//   const fetchUser = async () => {
-//   // 🛡️ CHECK: Kya ye wahi tab hai? 
-//   // Agar sessionStorage mein flag nahi hai, matlab naya tab khula hai.
-//   const isNewTab = !sessionStorage.getItem("tab_session_active");
-
-//   setLoading(true);
-//   try {
-//     const res = await api.get("/auth/me");
+  setLoading(true);
+  try {
+    const res = await api.get("/auth/me");
     
-//     if (res.data?.user) {
-//       // Agar naya tab hai aur tu chahta hai naya login mange:
-//       if (isNewTab) {
-//         setUser(null); // Force logout for new tab
-//         // Note: Asli safety backend se cookie expire karne mein hi hai.
-//       } else {
-//         setUser(res.data.user);
-//       }
-//     }
-//   } catch (err) {
-//     setUser(null);
-//   } finally {
-//     setLoading(false);
-//   }
-// };
+    if (res.data?.user) {
+      if (isNewTab) {
+        setUser(null); // Force logout for new tab
+      } else {
+        setUser(res.data.user);
+      }
+    }
+  } catch (err) {
+    setUser(null);
+  } finally {
+    setLoading(false);
+  }
+};
 
 
   const loginAction = (userData) => {
